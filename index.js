@@ -31,6 +31,8 @@ function mainTask() {
         "View All Employees",
         "View All Employees By Department",
         "View All Employees By Manager",
+        "View All Roles",
+        "View All Departments",
         "Add Department",
         "Add Role",
         "Add Employee",
@@ -50,6 +52,14 @@ function mainTask() {
 
         case "View All Employees By Manager":
           viewAllEmployeesManager();
+          break;
+
+          case "View All Roles":
+          viewAllRoles();
+          break;
+
+        case "View All Departments":
+          viewAllDepartments();
           break;
 
         case "Add Department":
@@ -80,6 +90,24 @@ function viewAllEmployees() {
     nextStep();
   });
 }
+
+function viewAllRoles() {
+    connection.query("SELECT * FROM role", function (err, data) {
+      if (err) throw err;
+      console.log("HERE'S THE CURRENT ROLE DIRECTORY:");
+      console.table(data);
+      nextStep();
+    });
+  }
+
+  function viewAllDepartments() {
+    connection.query("SELECT * FROM department", function (err, data) {
+      if (err) throw err;
+      console.log("HERE'S THE CURRENT DEPARTMENT DIRECTORY:");
+      console.table(data);
+      nextStep();
+    });
+  }
 
 function nextStep() {
   inquirer
@@ -114,9 +142,9 @@ function viewAllEmployeesDepartment() {
 }
 
 function viewAllEmployeesManager() {
-    let query =
+  let query =
     "SELECT employee.id, concat(employee.first_name, ' ',employee.last_name) as 'Employee Name', concat(manager.first_name, ' ', manager.last_name) as 'Managers Name' FROM employee left Outer Join employee as manager on employee.manager_id = manager.id";
-  
+
   connection.query(query, function (err, data) {
     if (err) throw err;
     console.log("HERE'S THE LISTING OF THE EMPLOYEES MANAGERS:");
@@ -150,56 +178,48 @@ function addDepartment() {
 }
 
 function addRole() {
-
-      connection.query(
-        "Select id, name from department",
-        (err, data) => {
-          if (err) throw err;
-          let departmentArray = data.map((department) => {
-            return {
-              name: department.name,
-              value: department.id,
-            };
-          });
-          inquirer
-            .prompt([
-              {
-                type: "input",
-                message: "Please enter the role's title?",
-                name: "roleTitle",
-              },
-              {
-                type: "number",
-                message: "Please enter the role's salary?",
-                name: "salary",
-              },
-              {
-                type: "list",
-                message: "Please enter what department the role is in?",
-                name: "department",
-                choices: departmentArray,
-              },
-            ])
-            .then((response) => {
-              connection.query(
-                "INSERT INTO Role (title, salary, department_id) values (?,?,?)",
-                [
-                  response.roleTitle,
-                  response.salary,
-                  response.department,
-                ],
-                (err, data) => {
-                  if (err) throw err;
-                  if (data.affectedRows > 0) {
-                    console.log("Role added successfully!");
-                  }
-                  nextStep();
-                }
-              );
-            });
-        }
-      );
-  }
+  connection.query("Select id, name from department", (err, data) => {
+    if (err) throw err;
+    let departmentArray = data.map((department) => {
+      return {
+        name: department.name,
+        value: department.id,
+      };
+    });
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "Please enter the role's title?",
+          name: "roleTitle",
+        },
+        {
+          type: "number",
+          message: "Please enter the role's salary?",
+          name: "salary",
+        },
+        {
+          type: "list",
+          message: "Please enter what department the role is in?",
+          name: "department",
+          choices: departmentArray,
+        },
+      ])
+      .then((response) => {
+        connection.query(
+          "INSERT INTO Role (title, salary, department_id) values (?,?,?)",
+          [response.roleTitle, response.salary, response.department],
+          (err, data) => {
+            if (err) throw err;
+            if (data.affectedRows > 0) {
+              console.log("Role added successfully!");
+            }
+            nextStep();
+          }
+        );
+      });
+  });
+}
 
 function addEmployee() {
   connection.query("Select id, title from role", (err, data) => {
@@ -275,7 +295,54 @@ function addEmployee() {
 }
 
 function updateEmployee() {
- 
+  connection.query(
+    "Select id, first_name, last_name from employee",
+    (err, data) => {
+      if (err) throw err;
+      let employeeArray = data.map((employee) => {
+        return {
+          name: employee.first_name + " " + employee.last_name,
+          value: employee.id,
+        };
+      });
+
+      connection.query("Select id, title from role", (err, data) => {
+        if (err) throw err;
+        const rolesArray = data.map((role) => {
+          return { name: role.title, value: role.id };
+        });
+
+        inquirer
+          .prompt([
+            {
+              type: "list",
+              message: "Please select the employee to update?",
+              name: "employee_id",
+              choices: employeeArray,
+            },
+            {
+              type: "list",
+              message: "Please select the new role for the employee?",
+              name: "role_id",
+              choices: rolesArray,
+            },
+          ])
+          .then((response) => {
+            connection.query(
+              "UPDATE employee set employee.role_id = ? WHERE employee.id = ?",
+              [response.role_id, response.employee_id],
+              (err, data) => {
+                if (err) throw err;
+                if (data.affectedRows > 0) {
+                  console.log("Employee updated successfully!");
+                }
+                nextStep();
+              }
+            );
+          });
+      });
+    }
+  );
 }
 
 function exit() {
