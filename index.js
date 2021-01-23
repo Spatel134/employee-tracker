@@ -83,7 +83,7 @@ function mainTask() {
 }
 
 function viewAllEmployees() {
-  connection.query("SELECT * FROM employee", function (err, data) {
+  connection.query("SELECT employee.first_name, employee.last_name, role.title, role.salary, concat(manager.first_name, ' ', manager.last_name) as manager FROM employee INNER JOIN role ON employee.role_id = role.id LEFT OUTER JOIN employee as manager on employee.manager_id = manager.id", function (err, data) {
     if (err) throw err;
     console.log("HERE'S THE CURRENT EMPLOYEE DIRECTORY:");
     console.table(data);
@@ -143,7 +143,7 @@ function viewAllEmployeesDepartment() {
 
 function viewAllEmployeesManager() {
   let query =
-    "SELECT employee.id, concat(employee.first_name, ' ',employee.last_name) as 'Employee Name', concat(manager.first_name, ' ', manager.last_name) as 'Managers Name' FROM employee left Outer Join employee as manager on employee.manager_id = manager.id";
+    "SELECT employee.id, concat(employee.first_name, ' ',employee.last_name) as 'Employee Name', concat(manager.first_name, ' ', manager.last_name) as 'Managers Name' FROM employee LEFT OUTER JOIN employee as manager on employee.manager_id = manager.id";
 
   connection.query(query, function (err, data) {
     if (err) throw err;
