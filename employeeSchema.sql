@@ -28,10 +28,3 @@ CREATE TABLE employee(
   FOREIGN Key (manager_id) REFERENCES employee(id)
 );
 
-
-
-INSERT INTO department (name) values ('General Managemnt'), ('HR'), ('Operation'), ('Marketing'), ('Sales'), ('Accounting');
-
-INSERT INTO role (title, salary, department_id) values ('CEO', '200000', 1);
-
-INSERT INTO employee(first_name, last_name, role_id) values ('Sahil', 'Patel', 1);
