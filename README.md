@@ -5,14 +5,17 @@
 
   ---
 ## DEMO:
-![Employee-tracker](./Assets/software-team-demo.gif)
+![Employee-tracker](./Assets/employee-tracker-demo.gif)
 
 ## Preview: 
-![Employee-tracker](./Assets/software-team.png)
+![Employee-tracker](./Assets/employee-tracker.png)
+
+## Schema - Preview
+![Employee-tracker](./Assets/schema.png)
 
 
 ### Watch video step by step: 
-* 
+* https://drive.google.com/file/d/1RwDfWPzQysoreTLTW-SSEGMPV5ThXwSD/view
 
 ---
   ## Table of Contents
